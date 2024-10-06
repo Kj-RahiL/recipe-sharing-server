@@ -1,5 +1,9 @@
-import express, { Application, Request, Response } from 'express';
-import cors from 'cors'
+import express, { Application, Request, Response } from "express";
+import cors from "cors";
+import router from "./app/routes";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler";
+import notFoundRoute from "./app/middlewares/notFound";
+
 
 const app: Application = express();
 
@@ -7,13 +11,13 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors());
 
-app.use('/api', router);
+app.use("/api", router);
 
-app.get('/', (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.send(`
       <html>
         <head>
-          <title>Sport Facility Booking Server</title>
+          <title>Recipe Sharing Community Server</title>
           <style>
             body {
               display: flex;
@@ -31,16 +35,16 @@ app.get('/', (req: Request, res: Response) => {
         </head>
         <body>
           <div class="content">
-            Boom💥💥💥!! Sport facility Booking Server is running... ... ...
+            Boom💥💥💥!! Recipe Sharing Community is running...
           </div>
         </body>
       </html>
     `);
 });
 
-// app.use(globalErrorHandler);
+app.use(globalErrorHandler);
 
 // not found route error
-// app.use(notFound);
+app.use(notFoundRoute)
 
 export default app;
