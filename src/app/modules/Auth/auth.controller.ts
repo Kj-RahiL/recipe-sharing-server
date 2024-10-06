@@ -1,3 +1,4 @@
+import httpStatus from "http-status";
 import config from "../../config";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
@@ -15,7 +16,9 @@ const signup = catchAsync(async (req, res) => {
 });
 
 const login = catchAsync(async (req, res) => {
-  const { accessToken, refreshToken } = await AuthServices.loginIntoDB(req.body);
+  const { accessToken, refreshToken } = await AuthServices.loginIntoDB(
+    req.body
+  );
 
   const user = await User.findOne({ email: req.body.email });
 
@@ -32,7 +35,30 @@ const login = catchAsync(async (req, res) => {
   });
 });
 
+const changePassword = catchAsync(async (req, res) => {
+  const result = await AuthServices.changePassword(req.user, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Password is updated succesfully!",
+    data: result,
+  });
+});
+
+const refreshToken = catchAsync(async (req, res) => {
+  const { refreshToken } = req.cookies;
+  const result = await AuthServices.refreshToken(refreshToken);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Access token is retrieved successful",
+    data: result,
+  });
+});
 export const AuthControllers = {
   signup,
-  login
+  login,
+  changePassword,
+  refreshToken,
 };

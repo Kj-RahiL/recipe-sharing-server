@@ -1,6 +1,7 @@
 
+import bcrypt from 'bcrypt'
 
-const isPasswordMatched = async (plainPassword: string, hashedPassword: string)=>{
+export const isPasswordMatched = async (plainPassword: string, hashedPassword: string)=>{
     const isMatched = await bcrypt.compare(plainPassword, hashedPassword)
     return isMatched
 }
