@@ -1,18 +1,18 @@
-import httpStatus from "http-status";
-import AppError from "../../errors/appError";
-import { TUser } from "../User/user.interface";
-import { User } from "../User/user.model";
-import { USER_Role } from "../User/user.constant";
-import { TLoginUser } from "./auth.interface";
-import config from "../../config";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import {  isPasswordMatched } from "./auth.utils";
+import httpStatus from 'http-status';
+import AppError from '../../errors/appError';
+import { TUser } from '../User/user.interface';
+import { User } from '../User/user.model';
+import { USER_Role } from '../User/user.constant';
+import { TLoginUser } from './auth.interface';
+import config from '../../config';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { isPasswordMatched } from './auth.utils';
 
 const signupFromDB = async (payload: TUser) => {
   const user = await User.findOne({ email: payload.email });
   if (user) {
-    throw new AppError(httpStatus.FORBIDDEN, "This user already exists");
+    throw new AppError(httpStatus.FORBIDDEN, 'This user already exists');
   }
 
   payload.role = USER_Role.user;
@@ -22,13 +22,13 @@ const signupFromDB = async (payload: TUser) => {
 };
 
 const loginIntoDB = async (payload: TLoginUser) => {
-  const user = await User.findOne({ email: payload.email }).select("+password");
+  const user = await User.findOne({ email: payload.email }).select('+password');
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
   const passwordMatch = await isPasswordMatched(
     payload.password,
-    user.password
+    user.password,
   );
   if (!passwordMatch) {
     throw new AppError(httpStatus.FORBIDDEN, "Password doesn't match !");
@@ -46,7 +46,7 @@ const loginIntoDB = async (payload: TLoginUser) => {
   const refreshToken = jwt.sign(
     jwtPayload,
     config.jwt_refresh_secret as string,
-    { expiresIn: config.jwt_refresh_expire_in }
+    { expiresIn: config.jwt_refresh_expire_in },
   );
 
   return {
@@ -57,28 +57,28 @@ const loginIntoDB = async (payload: TLoginUser) => {
 
 const changePassword = async (
   userData: JwtPayload,
-  payload: { oldPassword: string; newPassword: string }
+  payload: { oldPassword: string; newPassword: string },
 ) => {
   const user = await User.findOne({ email: userData.email }).select(
-    "+password"
+    '+password',
   );
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
   // checking if user is already deleted
   const isDeleted = user?.isDeleted;
   if (isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, "This user is deleted !");
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
   }
 
   // checking user is blocked
   const userStatus = user?.status;
-  if (userStatus === "blocked") {
-    throw new AppError(httpStatus.FORBIDDEN, "This user is blocked !");
+  if (userStatus === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked !');
   }
   const passwordMatch = await isPasswordMatched(
     payload?.oldPassword,
-    user?.password
+    user?.password,
   );
   if (!passwordMatch) {
     throw new AppError(httpStatus.FORBIDDEN, "Password doesn't match !");
@@ -87,7 +87,7 @@ const changePassword = async (
   //hash new password
   const newHashPassword = await bcrypt.hash(
     payload.newPassword,
-    Number(config.bcrypt_salt_rounds)
+    Number(config.bcrypt_salt_rounds),
   );
 
   await User.findOneAndUpdate(
@@ -98,7 +98,7 @@ const changePassword = async (
     {
       password: newHashPassword,
       passwordChangeAt: new Date(),
-    }
+    },
   );
   return null;
 };
@@ -106,30 +106,30 @@ const changePassword = async (
 const refreshToken = async (token: string) => {
   const decoded = jwt.verify(
     token,
-    config.jwt_refresh_secret as string
+    config.jwt_refresh_secret as string,
   ) as JwtPayload;
 
   const { email, iat } = decoded;
 
   // checking user existing
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select('+password');
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
   // checking if user is already deleted
   const isDeleted = user?.isDeleted;
   if (isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, "This user is deleted !");
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
   }
 
   // checking user is blocked
   const userStatus = user?.status;
-  if (userStatus === "blocked") {
-    throw new AppError(httpStatus.FORBIDDEN, "This user is blocked !");
+  if (userStatus === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked !');
   }
   const isJWTIssuedBeforePasswordChanged = (
     passwordChangeAt: Date,
-    iat: number
+    iat: number,
   ): boolean => {
     const jwtIssuedTimestamp = iat * 1000;
 
@@ -144,7 +144,7 @@ const refreshToken = async (token: string) => {
     user.passwordChangeAt &&
     isJWTIssuedBeforePasswordChanged(user.passwordChangeAt, iat as number)
   ) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
+    throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
   }
 
   //   create token and sent client
@@ -152,11 +152,9 @@ const refreshToken = async (token: string) => {
     userId: user.id,
     role: user.role,
   };
-  const accessToken = jwt.sign(
-    jwtPayload,
-    config.jwt_access_secret as string,
-   { expiresIn: config.jwt_access_expire_in as string}
-  );
+  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+    expiresIn: config.jwt_access_expire_in as string,
+  });
   return { accessToken };
 };
 
