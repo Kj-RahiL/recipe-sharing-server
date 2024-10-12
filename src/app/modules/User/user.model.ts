@@ -18,6 +18,9 @@ const userSchema = new Schema<TUser>(
       required: [true, 'Password is required'],
       select: 0,
     },
+    phone: {
+      type: String,
+    },
     image: {
       type: String,
       required: [true, 'Password is required'],

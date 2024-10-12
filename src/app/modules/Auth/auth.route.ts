@@ -12,7 +12,7 @@ router.post(
 );
 
 router.post(
-  '/signup',
+  '/register',
   validateRequest(AuthValidation.userValidationSchema),
   AuthControllers.signup,
 );
