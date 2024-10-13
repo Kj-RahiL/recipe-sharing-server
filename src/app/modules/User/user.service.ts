@@ -19,6 +19,8 @@ const getAllUser = async () => {
   return result;
 };
 const getUserFromDB = async (email: string) => {
+  // if user role === user ? && status === 'block' ,'can't get 
+  // only admin can get all user
   const result = await User.findOne({ email });
   return result;
 };

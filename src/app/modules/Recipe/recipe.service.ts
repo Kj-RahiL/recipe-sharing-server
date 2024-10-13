@@ -2,8 +2,8 @@ import { TRecipe } from "./recipe.interface";
 import { Recipe } from "./recipe.model";
 
 const createRecipeIntoDB = async (payload: TRecipe) => {
-  const admin = await Recipe.create(payload);
-  return admin;
+  const recipe = await Recipe.create(payload);
+  return recipe;
 };
 
 const getAllRecipeFromDB = async (query: Record<string, unknown>) => {
@@ -20,7 +20,7 @@ const getAllRecipeFromDB = async (query: Record<string, unknown>) => {
      $or: searchableFields.map((field) => ({
        [field]: { $regex: searchTerm, $options: 'i' },
      })),
-   });
+   }).populate('author')
  
    // Filter
    const excludeFields = ['searchTerm', 'sort', 'limit', 'page'];

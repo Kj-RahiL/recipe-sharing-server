@@ -9,9 +9,9 @@ const router = express.Router();
 router.post(
   '/',
   validateRequest(recipeValidationSchema),
-
   RecipeControllers.createRecipe
 );
+
 router.get('/:id', RecipeControllers.getSingleRecipe);
 
 // only for admin update and delete

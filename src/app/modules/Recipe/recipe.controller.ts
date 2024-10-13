@@ -3,6 +3,7 @@ import sendResponse from '../../utils/sendResponse';
 import { RecipeServices } from './recipe.service';
 
 const createRecipe = catchAsync(async (req, res) => {
+    console.log(req.body)
   const result = await RecipeServices.createRecipeIntoDB(req.body);
 
   sendResponse(res, {
