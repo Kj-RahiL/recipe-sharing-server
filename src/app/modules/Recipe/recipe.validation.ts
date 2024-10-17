@@ -11,7 +11,7 @@ const ingredientSchema = z.object({
 // Step Schema
 const stepSchema = z.object({
   description: z.string().min(1, 'Description is required.'),
-  duration: z.number().min(1, 'Duration must be at least 1 minute.'),
+  duration: z.string().min(1, 'Duration must be at least 1 minute.'),
 });
 
 // Rating Schema

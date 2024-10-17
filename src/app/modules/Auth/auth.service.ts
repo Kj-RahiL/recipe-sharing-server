@@ -40,7 +40,10 @@ const loginIntoDB = async (payload: TLoginUser) => {
     email: user.email,
     role: user.role,
     image: user.image,
-    status: user.status
+    status: user.status,
+    bio: user.bio,
+    followers: user.followers,
+    following: user.following,
   };
 
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {

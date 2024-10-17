@@ -12,7 +12,7 @@ router.post(
 );
 
 //get
-router.get('/:email', userControllers.getUser);
+router.get('/:id', userControllers.getUser);
 
 //update
 router.patch(
@@ -20,6 +20,9 @@ router.patch(
   validateRequest(UserValidations.updateUserValidationSchema),
   userControllers.updateUser,
 );
+
+router.post('/follow', userControllers.followUser);
+router.post('/unFollow', userControllers.unFollowUser);
 
 //getAll
 router.get('/', userControllers.getAllUser);

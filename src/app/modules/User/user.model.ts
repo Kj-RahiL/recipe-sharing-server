@@ -25,6 +25,9 @@ const userSchema = new Schema<TUser>(
       type: String,
       required: [true, 'Password is required'],
     },
+    bio: { type: String, default: '' }, 
+    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }], 
+    following: [{ type: Schema.Types.ObjectId, ref: 'User' }], 
     role: {
       type: String,
       required: [true, 'Role is required'],
@@ -49,13 +52,18 @@ const userSchema = new Schema<TUser>(
 userSchema.pre('save', async function (next) {
   const user = this;
 
-  // hashing password
+  // Only hash the password if it is being modified
+  if (!user.isModified('password')) {
+    return next();
+  }
+
   user.password = await bcrypt.hash(
     user.password,
-    Number(config.bcrypt_salt_rounds),
+    Number(config.bcrypt_salt_rounds)
   );
+
   next();
-});
+})
 
 userSchema.post('save', function (doc, next) {
   doc.password = '';

@@ -68,7 +68,7 @@ const getAllRecipeFromDB = async (query: Record<string, unknown>) => {
    return result;
 };
 const getRecipeFromDB = async (id: string) => {
-  const result = await Recipe.findById(id);
+  const result = await Recipe.findById(id).populate("author");
   return result;
 };
 const updateRecipe = async (id: string, payload: TRecipe) => {

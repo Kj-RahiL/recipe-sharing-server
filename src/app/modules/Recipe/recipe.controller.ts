@@ -26,6 +26,7 @@ const getAllRecipe = catchAsync(async (req, res) => {
 });
 const getSingleRecipe = catchAsync(async (req, res) => {
   const { id } = req.params;
+  console.log(id, 'i hiittniing')
   const result = await RecipeServices.getRecipeFromDB(id);
 
   sendResponse(res, {

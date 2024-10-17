@@ -24,9 +24,8 @@ const getAllUser = catchAsync(async (req, res) => {
   });
 });
 const getUser = catchAsync(async (req, res) => {
-  const { email } = req.params;
-  const result = await UserServices.getUserFromDB(email);
-
+  const {id} =req.params
+  const result = await UserServices.getUserFromDB(id);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -34,6 +33,30 @@ const getUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const followUser = catchAsync(async (req, res) => {
+  const { userId, followId } = req.body; 
+  const result = await UserServices.followUserIntoDB(userId, followId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'following user!',
+    data: result,
+  });
+});
+
+const unFollowUser = catchAsync(async (req, res) => {
+  const { userId, followId } = req.body;
+
+  const result = await UserServices.unFollowUserIntoDB(userId, followId)
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'UnFollow user !',
+    data: result,
+  });
+});
+
 const updateUser = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const result = await UserServices.updateUser(userId, req.body);
@@ -51,4 +74,6 @@ export const userControllers = {
   getAllUser,
   getUser,
   updateUser,
+  followUser,
+  unFollowUser
 };

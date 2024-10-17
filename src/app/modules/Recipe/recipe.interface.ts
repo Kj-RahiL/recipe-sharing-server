@@ -9,7 +9,7 @@ export type TIngredient = {
 
 export type TStep = {
   description: string;
-  duration?: number; 
+  duration?: string; 
 };
 
 export type TRating = {

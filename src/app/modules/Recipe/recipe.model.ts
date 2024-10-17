@@ -17,7 +17,7 @@ const ingredientSchema = new Schema<TIngredient>({
 // Step schema
 const stepSchema = new Schema<TStep>({
   description: { type: String, required: true },
-  duration: { type: Number, required: true }, // Ensure duration is provided (in minutes or seconds)
+  duration: { type: String, required: true }, // Ensure duration is provided (in minutes or seconds)
 });
 
 // Rating schema
