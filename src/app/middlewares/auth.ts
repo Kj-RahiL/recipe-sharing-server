@@ -6,9 +6,10 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 import { User } from '../modules/User/user.model';
 
-const Auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
+export const Auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
   return catchAsync(async (req, res, next) => {
-    const token = req.headers.authorization;
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log(req.headers, {token})
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
@@ -32,6 +33,7 @@ const Auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
         'You are not authorized to access this route',
       );
     }
+    req.user = decoded as JwtPayload;
     next();
   });
 };

@@ -58,13 +58,27 @@ const unFollowUser = catchAsync(async (req, res) => {
 });
 
 const updateUser = catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  const result = await UserServices.updateUser(userId, req.body);
+  
+  const { id } = req.params;
+  console.log('api hit', id, req.params)
+  const result = await UserServices.updateUserIntoDB(id, req.body);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'User updated successfully!',
+    data: result,
+  });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserServices.deleteUserIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'User Deleted successfully!',
     data: result,
   });
 });
@@ -75,5 +89,6 @@ export const userControllers = {
   getUser,
   updateUser,
   followUser,
-  unFollowUser
+  unFollowUser,
+  deleteUser
 };

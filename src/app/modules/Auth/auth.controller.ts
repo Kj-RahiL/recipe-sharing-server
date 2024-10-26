@@ -36,6 +36,7 @@ const login = catchAsync(async (req, res) => {
 });
 
 const changePassword = catchAsync(async (req, res) => {
+  console.log(req.user, req.body , 'hitt pass change')
   const result = await AuthServices.changePassword(req.user, req.body);
 
   sendResponse(res, {

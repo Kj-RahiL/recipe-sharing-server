@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { USER_Role } from './user.constant';
+import { USER_Role, USER_Status } from './user.constant';
 
 const userValidationSchema = z.object({
   body: z.object({
@@ -13,6 +13,8 @@ const userValidationSchema = z.object({
 const updateUserValidationSchema = z.object({
   name: z.string().optional(),
   role: z.nativeEnum(USER_Role).optional(),
+  status: z.nativeEnum(USER_Status).optional(),
+  bio: z.string().optional(),
 });
 
 export const UserValidations = {

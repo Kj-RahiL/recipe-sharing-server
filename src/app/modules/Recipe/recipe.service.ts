@@ -1,5 +1,8 @@
-import { TRecipe } from "./recipe.interface";
+import httpStatus from "http-status";
+import AppError from "../../errors/appError";
+import { TComment, TRecipe } from "./recipe.interface";
 import { Recipe } from "./recipe.model";
+import { Types } from "mongoose";
 
 const createRecipeIntoDB = async (payload: TRecipe) => {
   const recipe = await Recipe.create(payload);
@@ -82,10 +85,100 @@ const deleteRecipe = async(id: string)=>{
     const recipe = await Recipe.findByIdAndDelete(id);
     return recipe
 }
+
+const upVoteRecipeIntoDB = async (userId: string, RecipeId: string) => {
+
+  const recipe = await Recipe.findById(RecipeId);
+
+  if (!recipe) {
+   throw new AppError(httpStatus.NOT_FOUND,  'Recipe not found')
+  }
+
+  // Check if the user already upvoted
+  if (recipe.upVotes.includes(userId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'You have already upvoted this recipe')
+
+  }
+
+  // Remove from downvotes if previously downvoted
+  recipe.downVotes = recipe.downVotes.filter(vote => vote.toString() !== userId);
+
+  // Add to upvotes
+  recipe.upVotes.push(userId);
+  await recipe.save();
+  return recipe
+
+};
+
+const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
+  const recipe = await Recipe.findById(recipeId);
+
+  if (!recipe) {
+    throw new AppError(httpStatus.NOT_FOUND,  'Recipe not found')
+  }
+
+  // Check if the user already downvoted
+  if (recipe.downVotes.includes(userId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'You have already downvoted this recipe')
+  }
+
+  // Remove from upvotes if previously upvoted
+  recipe.upVotes = recipe.upVotes.filter(vote => vote.toString() !== userId);
+
+  // Add to downvotes
+  recipe.downVotes.push(userId);
+  await recipe.save();
+
+ return recipe
+  
+};
+
+ const commentOnRecipeIntoDb = async (userId: string, recipeId: string, comment:string) => {
+
+    const recipe = await Recipe.findById(recipeId);
+
+    if (!recipe) {
+      throw new AppError(httpStatus.NOT_FOUND,  'Recipe not found')
+    }
+
+    // Create a new comment
+    recipe.comment.push({ user: userId, comment, date: new Date() });
+    await recipe.save();
+
+  return recipe
+};
+
+ const rateRecipeIntoDB = async (userId: string, recipeId: string, rating: number) => {
+    const recipe = await Recipe.findById(recipeId);
+
+    if (!recipe) {
+      throw new AppError(httpStatus.NOT_FOUND,  'Recipe not found')
+
+    }
+
+    // Check if the user has already rated
+    const existingRating = recipe.rating.find(r => r.user.toString() === userId);
+
+    if (existingRating) {
+      existingRating.rating = rating; 
+    } else {
+      // Create a new rating
+      recipe.rating.push({ user: new Types.ObjectId(userId), rating });
+    }
+
+    await recipe.save();
+    return recipe
+
+};
+
 export const RecipeServices = {
   createRecipeIntoDB,
   getAllRecipeFromDB,
   getRecipeFromDB,
   updateRecipe,
-  deleteRecipe
+  deleteRecipe,
+  upVoteRecipeIntoDB,
+  downVoteRecipeIntoDB,
+  commentOnRecipeIntoDb,
+  rateRecipeIntoDB
 };

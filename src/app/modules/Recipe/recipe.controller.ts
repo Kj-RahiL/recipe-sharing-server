@@ -58,10 +58,63 @@ const deleteRecipe = catchAsync(async (req, res) => {
     });
   })
 
+  const upVote = catchAsync(async (req, res) => {
+    const { userId, followId } = req.body; 
+    const result = await RecipeServices.upVoteRecipeIntoDB(userId, followId);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'UpVoting Recipe',
+      data: result,
+    });
+  });
+  
+  const downVote = catchAsync(async (req, res) => {
+    const { userId, followId } = req.body;
+  
+    const result = await RecipeServices.downVoteRecipeIntoDB(userId, followId)
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'DownVoting Recipe',
+      data: result,
+    });
+  });
+  const commentRecipe = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const {user, comment } = req.body;
+
+    console.log(req.body)
+    const result = await RecipeServices.commentOnRecipeIntoDb(user, id, followId);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Successfully Comment on Recipe',
+      data: result,
+    });
+  });
+  
+  const rateRecipe = catchAsync(async (req, res) => {
+    const {recipeId} = req.params
+    const { userId, rating } = req.body;
+  
+    const result = await RecipeServices.rateRecipeIntoDB(userId, recipeId, rating)
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Rating Recipe',
+      data: result,
+    });
+  });
+
 export const RecipeControllers = {
   createRecipe,
   getAllRecipe,
   getSingleRecipe,
   updateRecipe,
-  deleteRecipe
+  deleteRecipe,
+  upVote,
+  downVote,
+  commentRecipe,
+  rateRecipe
 };

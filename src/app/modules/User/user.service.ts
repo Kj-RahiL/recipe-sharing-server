@@ -18,18 +18,17 @@ const createAdminIntoDB = async (payload: TUser) => {
   return admin;
 };
 const getAllUser = async () => {
-  const result = await User.find();
+  const result = await User.find({ role: 'user' });
   return result;
 };
 const getUserFromDB = async (id: string) => {
-
   const user = await User.findById(id);
-  if(!user){
+  if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User Not found.');
   }
-   if(user.status === "blocked"){
+  if (user.status === 'blocked') {
     throw new AppError(httpStatus.BAD_REQUEST, 'Cannot get user');
-   }
+  }
   return user;
 };
 
@@ -55,7 +54,10 @@ const followUserIntoDB = async (userId: string, followId: string) => {
     const followObjectId = new Types.ObjectId(followId);
 
     if (user.following.some((id) => id.equals(followObjectId))) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Already following this user.');
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'Already following this user.',
+      );
     }
 
     // Push the new follower and following IDs
@@ -75,8 +77,6 @@ const followUserIntoDB = async (userId: string, followId: string) => {
   }
 };
 
-
-
 const unFollowUserIntoDB = async (userId: string, followId: string) => {
   const session = await mongoose.startSession();
   session.startTransaction(); // Start a new transaction
@@ -86,21 +86,21 @@ const unFollowUserIntoDB = async (userId: string, followId: string) => {
     await User.updateOne(
       { _id: userId },
       { $pull: { following: followId } },
-      { session }
+      { session },
     );
 
     // Remove 'userId' from the 'followers' list of 'followId'
     await User.updateOne(
       { _id: followId },
       { $pull: { followers: userId } },
-      { session }
+      { session },
     );
 
     // Commit the transaction if successful
     await session.commitTransaction();
     session.endSession();
 
-    return
+    return;
   } catch (error) {
     // Rollback the transaction on error
     await session.abortTransaction();
@@ -109,14 +109,33 @@ const unFollowUserIntoDB = async (userId: string, followId: string) => {
   }
 };
 
-const updateUser = async (id: string, payload: TUser) => {
-  const user = await User.findByIdAndUpdate(id, payload);
+const updateUserIntoDB = async (id: string, payload: TUser) => {
+  const isUser = await User.findById(id);
+
+  console.log(isUser)
+
+  if (!isUser) {
+    throw new AppError(httpStatus.NOT_FOUND, 'user not found');
+  }
+  const user = await User.findByIdAndUpdate(id, [{ $set: payload }], {
+    new: true,
+  });
+  return user;
+};
+const deleteUserIntoDB = async (id: string) => {
+  const isUser = await User.findById(id);
+  if (!isUser) {
+    throw new AppError(httpStatus.NOT_FOUND, 'user not found');
+  }
+  const user = await User.findByIdAndUpdate(id, {isDeleted: true}, {new:true} );
   return user;
 };
 
 export const UserServices = {
   createAdminIntoDB,
   getUserFromDB,
-  updateUser,
-  getAllUser,followUserIntoDB, unFollowUserIntoDB
+  getAllUser,
+  followUserIntoDB,
+  unFollowUserIntoDB,
+  updateUserIntoDB, deleteUserIntoDB
 };

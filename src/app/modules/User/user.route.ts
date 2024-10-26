@@ -15,10 +15,15 @@ router.post(
 router.get('/:id', userControllers.getUser);
 
 //update
-router.patch(
+router.put(
   '/:id',
   validateRequest(UserValidations.updateUserValidationSchema),
   userControllers.updateUser,
+);
+//delete
+router.delete(
+  '/:id',
+  userControllers.deleteUser,
 );
 
 router.post('/follow', userControllers.followUser);

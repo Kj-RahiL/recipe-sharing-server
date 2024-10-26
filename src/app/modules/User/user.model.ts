@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { TUser } from './user.interface';
-import { USER_Role } from './user.constant';
+import { USER_Role, USER_Status } from './user.constant';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 
@@ -39,8 +39,8 @@ const userSchema = new Schema<TUser>(
     },
     status: {
       type: String,
-      enum: ['in-progress', 'blocked'],
-      default: 'in-progress',
+      enum: Object.keys(USER_Status),
+      default: USER_Status.inProgress,
     },
     isDeleted: { type: Boolean, default: false },
   },
@@ -48,6 +48,18 @@ const userSchema = new Schema<TUser>(
     timestamps: true,
   },
 );
+
+
+// query middleware
+userSchema.pre('find', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+userSchema.pre('findOne', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
 
 userSchema.pre('save', async function (next) {
   const user = this;

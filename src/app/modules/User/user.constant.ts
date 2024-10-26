@@ -3,3 +3,8 @@ export const USER_Role = {
   member: 'member',
   user: 'user',
 } as const;
+
+export const USER_Status = {
+  inProgress: 'in-progress',
+  blocked: 'blocked',
+} as const;

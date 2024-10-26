@@ -15,7 +15,7 @@ router.post(
 router.get('/:id', RecipeControllers.getSingleRecipe);
 
 // only for admin update and delete
-router.patch(
+router.put(
   '/:id',
 //   validateRequest(updateFacilityValidationSchema),
 //   Auth(USER_Role.admin),
@@ -27,5 +27,11 @@ router.delete(
 RecipeControllers.deleteRecipe,
 );
 router.get('/', RecipeControllers.getAllRecipe);
+
+router.post('/upvote', RecipeControllers.upVote);
+router.post('/downVote', RecipeControllers.downVote);
+
+router.post('/comment/:recipeId',RecipeControllers.commentRecipe);
+router.post('/rate/:recipeId', RecipeControllers.rateRecipe);
 
 export const RecipeRoutes = router;
