@@ -59,8 +59,8 @@ const deleteRecipe = catchAsync(async (req, res) => {
   })
 
   const upVote = catchAsync(async (req, res) => {
-    const { userId, followId } = req.body; 
-    const result = await RecipeServices.upVoteRecipeIntoDB(userId, followId);
+    const { userId, recipeId } = req.body; 
+    const result = await RecipeServices.upVoteRecipeIntoDB(userId, recipeId);
     sendResponse(res, {
       statusCode: 200,
       success: true,
@@ -70,9 +70,9 @@ const deleteRecipe = catchAsync(async (req, res) => {
   });
   
   const downVote = catchAsync(async (req, res) => {
-    const { userId, followId } = req.body;
+    const { userId, recipeId } = req.body;
   
-    const result = await RecipeServices.downVoteRecipeIntoDB(userId, followId)
+    const result = await RecipeServices.downVoteRecipeIntoDB(userId, recipeId)
     sendResponse(res, {
       statusCode: 200,
       success: true,
@@ -81,11 +81,9 @@ const deleteRecipe = catchAsync(async (req, res) => {
     });
   });
   const commentRecipe = catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const {user, comment } = req.body;
-
-    console.log(req.body)
-    const result = await RecipeServices.commentOnRecipeIntoDb(user, id, followId);
+    const { recipeId } = req.params;
+    const {userId, comment } = req.body;
+    const result = await RecipeServices.commentOnRecipeIntoDb(userId, recipeId, comment);
     sendResponse(res, {
       statusCode: 200,
       success: true,

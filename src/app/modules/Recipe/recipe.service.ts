@@ -95,7 +95,7 @@ const upVoteRecipeIntoDB = async (userId: string, RecipeId: string) => {
   }
 
   // Check if the user already upvoted
-  if (recipe.upVotes.includes(userId)) {
+  if (recipe.upVotes.includes(new Types.ObjectId(userId))) {
     throw new AppError(httpStatus.BAD_REQUEST, 'You have already upvoted this recipe')
 
   }
@@ -104,7 +104,7 @@ const upVoteRecipeIntoDB = async (userId: string, RecipeId: string) => {
   recipe.downVotes = recipe.downVotes.filter(vote => vote.toString() !== userId);
 
   // Add to upvotes
-  recipe.upVotes.push(userId);
+  recipe.upVotes.push(new Types.ObjectId(userId));
   await recipe.save();
   return recipe
 
@@ -118,7 +118,7 @@ const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
   }
 
   // Check if the user already downvoted
-  if (recipe.downVotes.includes(userId)) {
+  if (recipe.downVotes.includes(new Types.ObjectId(userId))) {
     throw new AppError(httpStatus.BAD_REQUEST, 'You have already downvoted this recipe')
   }
 
@@ -126,7 +126,7 @@ const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
   recipe.upVotes = recipe.upVotes.filter(vote => vote.toString() !== userId);
 
   // Add to downvotes
-  recipe.downVotes.push(userId);
+  recipe.downVotes.push(new Types.ObjectId(userId));
   await recipe.save();
 
  return recipe
@@ -142,7 +142,7 @@ const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
     }
 
     // Create a new comment
-    recipe.comment.push({ user: userId, comment, date: new Date() });
+    recipe.comment.push({ user: new Types.ObjectId(userId), comment, date: new Date() });
     await recipe.save();
 
   return recipe
