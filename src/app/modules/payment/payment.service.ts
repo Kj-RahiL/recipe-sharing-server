@@ -1,8 +1,11 @@
 import { readFileSync } from 'fs';
-import { verifyPayment } from './payment.utils';
 import { join } from 'path';
+import { verifyPayment } from './payment.utils';
+import { Order } from '../order/order.model';
 
 const confirmationServices = async (transactionId: string, status: string) => {
+
+
   const verifyResponse = await verifyPayment(transactionId);
   console.log(verifyResponse.data.pay_status);
 
@@ -12,10 +15,10 @@ const confirmationServices = async (transactionId: string, status: string) => {
   let description = '';
 
   if (verifyResponse.data && verifyResponse.data.pay_status === 'Successful') {
-    // result = await Booking.findOneAndUpdate(
-    //   { transactionId },
-    //   { paymentStatus: 'paid' },
-    // );
+    result = await Order.findOneAndUpdate(
+      { transactionId },
+      { paymentStatus: 'paid' }
+    );
     message = 'Payment Successful!';
     statusClass = 'success';
     description =
@@ -26,14 +29,25 @@ const confirmationServices = async (transactionId: string, status: string) => {
     description =
       'Unfortunately, your payment could not be processed. Please try again or contact support for assistance.';
   }
-  const filePath = join(__dirname, '../../../view/index.html');
-  let template = readFileSync(filePath, 'utf-8');
-  template = template
-    .replace('{{message}}', message)
-    .replace('{{statusClass}}', statusClass)
-    .replace('{{description}}', description);
 
-  return template;
+  // Debug the resolved file path
+  const filePath = join(__dirname, '../../views/confirmation.html');
+  // const filePath = join(process.cwd(), '../../view/confirmation.html');
+  console.log(`Resolved file path: ${filePath}`);
+
+  try {
+    let template = readFileSync(filePath, 'utf-8');
+    template = template
+      .replace('{{message}}', message)
+      .replace('{{statusClass}}', statusClass)
+      .replace('{{description}}', description);
+
+    return template;
+  } catch (error) {
+    console.error('Error reading template:', error);
+    throw new Error('Template file not found or could not be read.');
+  }
+
 };
 
 export const paymentServices = {

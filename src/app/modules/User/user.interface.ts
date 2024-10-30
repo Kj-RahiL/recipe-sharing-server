@@ -12,5 +12,6 @@ export type TUser = {
   role?: 'user' | 'member' | 'admin';
   passwordChangeAt?: Date;
   status: 'in-progress' | 'blocked';
+  isPaid: boolean;
   isDeleted: boolean;
 };

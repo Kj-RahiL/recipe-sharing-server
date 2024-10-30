@@ -3,6 +3,7 @@ import AppError from "../../errors/appError";
 import { TComment, TRecipe } from "./recipe.interface";
 import { Recipe } from "./recipe.model";
 import { Types } from "mongoose";
+import { JwtPayload } from "jsonwebtoken";
 
 const createRecipeIntoDB = async (payload: TRecipe) => {
   const recipe = await Recipe.create(payload);
@@ -39,9 +40,9 @@ const getAllRecipeFromDB = async (query: Record<string, unknown>) => {
    if (query?.sort === 'rating') {
      sortBy = '-rating'; // Descending by rating
    } else if (query?.sort === 'easy') {
-     sortBy = 'price'; // Ascending by easy
+     sortBy = 'easy'; // Ascending by easy
    } else if (query?.sort === 'medium') {
-     sortBy = '-price'; // Descending by medium
+     sortBy = '-medium'; // Descending by medium
    } else if (query?.sort === 'hard') {
      sortBy = '-hard'; // Descending by hard 
    } else if (query?.sort === 'latest') {
@@ -70,8 +71,9 @@ const getAllRecipeFromDB = async (query: Record<string, unknown>) => {
    const result = await paginateQuery;
    return result;
 };
+
 const getRecipeFromDB = async (id: string) => {
-  const result = await Recipe.findById(id).populate("author");
+  const result = await Recipe.findById(id).populate("author").populate('comment.user', 'name image email');;
   return result;
 };
 const updateRecipe = async (id: string, payload: TRecipe) => {
@@ -86,7 +88,7 @@ const deleteRecipe = async(id: string)=>{
     return recipe
 }
 
-const upVoteRecipeIntoDB = async (userId: string, RecipeId: string) => {
+const upVoteRecipeIntoDB = async (user: JwtPayload, RecipeId: string) => {
 
   const recipe = await Recipe.findById(RecipeId);
 
@@ -95,22 +97,24 @@ const upVoteRecipeIntoDB = async (userId: string, RecipeId: string) => {
   }
 
   // Check if the user already upvoted
-  if (recipe.upVotes.includes(new Types.ObjectId(userId))) {
+  if (recipe.upVotes.includes(user.id)) {
     throw new AppError(httpStatus.BAD_REQUEST, 'You have already upvoted this recipe')
 
   }
 
   // Remove from downvotes if previously downvoted
-  recipe.downVotes = recipe.downVotes.filter(vote => vote.toString() !== userId);
+  recipe.downVotes = recipe.downVotes.filter(vote => vote.toString() !== user.id);
 
   // Add to upvotes
-  recipe.upVotes.push(new Types.ObjectId(userId));
+  recipe.upVotes.push(user.id);
   await recipe.save();
   return recipe
 
 };
 
 const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
+
+  console.log({userId, recipeId}, 'down')
   const recipe = await Recipe.findById(recipeId);
 
   if (!recipe) {
@@ -133,7 +137,7 @@ const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
   
 };
 
- const commentOnRecipeIntoDb = async (userId: string, recipeId: string, comment:string) => {
+ const commentOnRecipeIntoDb = async (user: JwtPayload, recipeId: string, comment:string) => {
 
     const recipe = await Recipe.findById(recipeId);
 
@@ -142,13 +146,13 @@ const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
     }
 
     // Create a new comment
-    recipe.comment.push({ user: new Types.ObjectId(userId), comment, date: new Date() });
+    recipe.comment.push({ user:user.id, comment, date: new Date() });
     await recipe.save();
 
   return recipe
 };
 
- const rateRecipeIntoDB = async (userId: string, recipeId: string, rating: number) => {
+ const rateRecipeIntoDB = async (user: JwtPayload, recipeId: string, rating: number) => {
     const recipe = await Recipe.findById(recipeId);
 
     if (!recipe) {
@@ -157,13 +161,13 @@ const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
     }
 
     // Check if the user has already rated
-    const existingRating = recipe.rating.find(r => r.user.toString() === userId);
+    const existingRating = recipe.rating.find(r => r.user.toString() === user.id);
 
     if (existingRating) {
       existingRating.rating = rating; 
     } else {
       // Create a new rating
-      recipe.rating.push({ user: new Types.ObjectId(userId), rating });
+      recipe.rating.push({ user: new Types.ObjectId(user.id), rating });
     }
 
     await recipe.save();

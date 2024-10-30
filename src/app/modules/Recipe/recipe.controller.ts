@@ -3,7 +3,7 @@ import sendResponse from '../../utils/sendResponse';
 import { RecipeServices } from './recipe.service';
 
 const createRecipe = catchAsync(async (req, res) => {
-    console.log(req.body)
+
   const result = await RecipeServices.createRecipeIntoDB(req.body);
 
   sendResponse(res, {
@@ -15,6 +15,7 @@ const createRecipe = catchAsync(async (req, res) => {
 });
 
 const getAllRecipe = catchAsync(async (req, res) => {
+ 
   const result = await RecipeServices.getAllRecipeFromDB(req.query);
 
   sendResponse(res, {
@@ -59,8 +60,8 @@ const deleteRecipe = catchAsync(async (req, res) => {
   })
 
   const upVote = catchAsync(async (req, res) => {
-    const { userId, recipeId } = req.body; 
-    const result = await RecipeServices.upVoteRecipeIntoDB(userId, recipeId);
+    const { recipeId } = req.body; 
+    const result = await RecipeServices.upVoteRecipeIntoDB(req.user, recipeId);
     sendResponse(res, {
       statusCode: 200,
       success: true,
@@ -70,9 +71,8 @@ const deleteRecipe = catchAsync(async (req, res) => {
   });
   
   const downVote = catchAsync(async (req, res) => {
-    const { userId, recipeId } = req.body;
-  
-    const result = await RecipeServices.downVoteRecipeIntoDB(userId, recipeId)
+   const {recipeId} = req.body
+    const result = await RecipeServices.downVoteRecipeIntoDB(req.user.id, recipeId)
     sendResponse(res, {
       statusCode: 200,
       success: true,
@@ -82,8 +82,10 @@ const deleteRecipe = catchAsync(async (req, res) => {
   });
   const commentRecipe = catchAsync(async (req, res) => {
     const { recipeId } = req.params;
-    const {userId, comment } = req.body;
-    const result = await RecipeServices.commentOnRecipeIntoDb(userId, recipeId, comment);
+    const { comment } = req.body;
+    const user = req.user
+    console.log(user)
+    const result = await RecipeServices.commentOnRecipeIntoDb(user, recipeId, comment);
     sendResponse(res, {
       statusCode: 200,
       success: true,
@@ -94,9 +96,10 @@ const deleteRecipe = catchAsync(async (req, res) => {
   
   const rateRecipe = catchAsync(async (req, res) => {
     const {recipeId} = req.params
-    const { userId, rating } = req.body;
+    const { rating } = req.body;
+    console.log(req.body)
   
-    const result = await RecipeServices.rateRecipeIntoDB(userId, recipeId, rating)
+    const result = await RecipeServices.rateRecipeIntoDB(req.user.id, recipeId, rating)
     sendResponse(res, {
       statusCode: 200,
       success: true,

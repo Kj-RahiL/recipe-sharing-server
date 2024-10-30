@@ -24,7 +24,7 @@ const userSchema = new Schema<TUser>(
     image: {
       type: String,
       required: [true, 'Password is required'],
-    },
+    }, 
     bio: { type: String, default: '' }, 
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }], 
     following: [{ type: Schema.Types.ObjectId, ref: 'User' }], 
@@ -42,6 +42,7 @@ const userSchema = new Schema<TUser>(
       enum: Object.keys(USER_Status),
       default: USER_Status.inProgress,
     },
+    isPaid:{ type: Boolean, default: false},
     isDeleted: { type: Boolean, default: false },
   },
   {

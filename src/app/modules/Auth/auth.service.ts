@@ -44,6 +44,7 @@ const loginIntoDB = async (payload: TLoginUser) => {
     bio: user.bio,
     followers: user.followers,
     following: user.following,
+    isPaid: user.isPaid
   };
 
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {

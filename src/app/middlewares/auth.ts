@@ -9,7 +9,7 @@ import { User } from '../modules/User/user.model';
 export const Auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
   return catchAsync(async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
-    console.log(req.headers, {token})
+    console.log(token)
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
