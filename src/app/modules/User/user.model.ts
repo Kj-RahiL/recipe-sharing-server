@@ -39,8 +39,8 @@ const userSchema = new Schema<TUser>(
     },
     status: {
       type: String,
-      enum: Object.keys(USER_Status),
-      default: USER_Status.inProgress,
+      enum: ['in-progress','blocked'],
+      default: 'in-progress',
     },
     isPaid:{ type: Boolean, default: false},
     isDeleted: { type: Boolean, default: false },

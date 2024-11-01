@@ -67,48 +67,28 @@ const changePassword = async (
   userData: JwtPayload,
   payload: { oldPassword: string; newPassword: string },
 ) => {
-  const user = await User.findOne({ email: userData.email }).select(
-    '+password',
-  );
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
-  }
-  // checking if user is already deleted
-  const isDeleted = user?.isDeleted;
-  if (isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
-  }
+  const user = await User.findOne({ email: userData.email }).select("+password");
+  if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 
-  // checking user is blocked
-  const userStatus = user?.status;
-  if (userStatus === 'blocked') {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked !');
-  }
-  const passwordMatch = await isPasswordMatched(
-    payload?.oldPassword,
-    user?.password,
-  );
+
+  const passwordMatch = await isPasswordMatched(payload.oldPassword, user.password);
+  console.log("Password Match Result:", passwordMatch);
+
   if (!passwordMatch) {
-    throw new AppError(httpStatus.FORBIDDEN, "Password doesn't match !");
+    throw new AppError(httpStatus.FORBIDDEN, "Password doesn't match!");
   }
 
-  //hash new password
-  const newHashPassword = await bcrypt.hash(
-    payload.newPassword,
-    Number(config.bcrypt_salt_rounds),
-  );
-
+  const newHashPassword = await bcrypt.hash(payload.newPassword, Number(config.bcrypt_salt_rounds));
+  
   await User.findOneAndUpdate(
-    {
-      id: userData.userId,
-      role: userData.role,
-    },
+    { _id: user._id },
     {
       password: newHashPassword,
       passwordChangeAt: new Date(),
-    },
+    }
   );
-  return null;
+
+  return user;
 };
 
 const refreshToken = async (token: string) => {

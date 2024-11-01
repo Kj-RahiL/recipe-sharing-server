@@ -15,14 +15,17 @@ const createRecipe = catchAsync(async (req, res) => {
 });
 
 const getAllRecipe = catchAsync(async (req, res) => {
- 
+ console.log(req.query)
   const result = await RecipeServices.getAllRecipeFromDB(req.query);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Recipe retrieved successfully!',
-    data: result,
+    totalCount:result.totalCount,
+    totalPages:result.totalPages,
+    currentPage:result.currentPage,
+    data: result.data,
   });
 });
 const getSingleRecipe = catchAsync(async (req, res) => {

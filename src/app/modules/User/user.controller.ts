@@ -36,6 +36,7 @@ const getUser = catchAsync(async (req, res) => {
 
 const followUser = catchAsync(async (req, res) => {
   const { userId, followId } = req.body; 
+  console.log(req.body, 'hit follow')
   const result = await UserServices.followUserIntoDB(userId, followId);
   sendResponse(res, {
     statusCode: 200,

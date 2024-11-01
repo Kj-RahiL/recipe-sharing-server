@@ -11,65 +11,71 @@ const createRecipeIntoDB = async (payload: TRecipe) => {
 };
 
 const getAllRecipeFromDB = async (query: Record<string, unknown>) => {
-   // Search
-   const queryObj = { ...query };
-   let searchTerm = '';
-   const searchableFields = ['title', 'category', 'tags'];
- 
-   if (query?.searchTerm) {
-     searchTerm = query?.searchTerm as string;
-   }
- 
-   const searchQuery = Recipe.find({
-     $or: searchableFields.map((field) => ({
-       [field]: { $regex: searchTerm, $options: 'i' },
-     })),
-   }).populate('author')
- 
-   // Filter
-   const excludeFields = ['searchTerm', 'sort', 'limit', 'page'];
-   excludeFields.forEach((el) => delete queryObj[el]);
- 
- //   console.log({ query, queryObj });
-   const filterQuery = searchQuery.find(queryObj);
- 
-   // Sorting
- 
-   let sortBy = '-createdAt'; // Default to latest
- 
-   if (query?.sort === 'rating') {
-     sortBy = '-rating'; // Descending by rating
-   } else if (query?.sort === 'easy') {
-     sortBy = 'easy'; // Ascending by easy
-   } else if (query?.sort === 'medium') {
-     sortBy = '-medium'; // Descending by medium
-   } else if (query?.sort === 'hard') {
-     sortBy = '-hard'; // Descending by hard 
-   } else if (query?.sort === 'latest') {
-     sortBy = '-createdAt'; // Descending by createdAt (latest first)
-   }
- 
-   const sortQuery = filterQuery.sort(sortBy);
- 
-   // Pagination
-   let page = 1;
-   let limit = 100;
-   let skip = 0;
- 
-   if (query?.limit) {
-     limit = Number(query.limit);
-   }
-   if (query?.page) {
-     page = Number(query.page);
-     skip = (page - 1) * limit;
-   }
- 
-   // Apply skip and limit for pagination
-   const paginateQuery = sortQuery.skip(skip).limit(limit);
- 
-   // Execute the query
-   const result = await paginateQuery;
-   return result;
+  const queryObj = { ...query };
+  let searchTerm = '';
+  const searchableFields = ['title', 'category', 'tags', 'cookingTime'];
+
+  if (query?.searchTerm) {
+    searchTerm = query?.searchTerm as string;
+  }
+
+  const searchQuery = Recipe.find({
+    $or: searchableFields.map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' },
+    })),
+  }).populate('author');
+
+  // Filter
+  const excludeFields = ['searchTerm', 'sort', 'limit', 'page'];
+  excludeFields.forEach((el) => delete queryObj[el]);
+  
+  const filterQuery = searchQuery.find(queryObj);
+
+  // Sorting
+  let sortBy = '-createdAt'; // Default to latest
+  if (query?.sort === 'rating') {
+    sortBy = '-rating';
+  } else if (query?.sort === 'easy') {
+    sortBy = 'easy';
+  } else if (query?.sort === 'medium') {
+    sortBy = '-medium';
+  } else if (query?.sort === 'hard') {
+    sortBy = '-hard';
+  } else if (query?.sort === 'latest') {
+    sortBy = '-createdAt';
+  }
+
+  const sortQuery = filterQuery.sort(sortBy);
+
+  // Pagination
+  let page = 1;
+  let limit = 100;
+  let skip = 0;
+
+  if (query?.limit) {
+    limit = Number(query.limit);
+  }
+  if (query?.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit;
+  }
+
+  const paginateQuery = sortQuery.skip(skip).limit(limit);
+
+  // Execute the query and get the total count
+  const [result, totalCount] = await Promise.all([
+    paginateQuery,
+    Recipe.countDocuments(searchQuery.getFilter()) // Count total matching documents
+  ]);
+
+  const totalPages = Math.ceil(totalCount / limit);
+
+  return {
+    data: result,
+    totalCount,
+    totalPages,
+    currentPage: page,
+  };
 };
 
 const getRecipeFromDB = async (id: string) => {

@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { verifyPayment } from './payment.utils';
 import { Order } from '../order/order.model';
+import { User } from '../User/user.model';
 
 const confirmationServices = async (transactionId: string, status: string) => {
 
@@ -19,6 +20,10 @@ const confirmationServices = async (transactionId: string, status: string) => {
       { transactionId },
       { paymentStatus: 'paid' }
     );
+    await User.findOneAndUpdate(
+      {email: result?.user?.email}, 
+      { isPaid: true});
+
     message = 'Payment Successful!';
     statusClass = 'success';
     description =
