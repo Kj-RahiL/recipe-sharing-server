@@ -6,7 +6,8 @@
   "scripts": {
     "start:prod": "node ./dist/server.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/server.ts ",
-    "build": "tsc",
+    "build": "tsc && npm run copy-html",
+    "copy-html": "xcopy src\\app\\views dist\\app\\views /E /I /Y",
     "lint:fix": "npx eslint src --fix",
     "lint": "eslint src --ignore-pattern .eslintignore --ext .ts",
     "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@eslint/js": "^9.12.0",
     "@types/express": "^5.0.0",
+    "@types/nodemailer": "^6.4.16",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "^8.8.0",
     "cors": "^2.8.5",
@@ -39,6 +41,7 @@
     "bcrypt": "^5.1.1",
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
     "ts-node-dev": "^2.0.0",
     "zod": "^3.23.8"
   }

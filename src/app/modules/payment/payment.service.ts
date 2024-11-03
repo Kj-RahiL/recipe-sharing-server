@@ -37,7 +37,8 @@ const confirmationServices = async (transactionId: string, status: string) => {
 
   // Debug the resolved file path
   const filePath = join(__dirname, '../../views/confirmation.html');
-  // const filePath = join(process.cwd(), '../../view/confirmation.html');
+  // const filePath = join(process.cwd(), '../../views/confirmation.html');
+  
   console.log(`Resolved file path: ${filePath}`);
 
   try {

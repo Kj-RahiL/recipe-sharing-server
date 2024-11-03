@@ -20,7 +20,7 @@ export const Auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
       token,
       config.jwt_access_secret as string,
     ) as JwtPayload;
-    const { role, email } = decoded;
+    const { role, email} = decoded;
 
     // checking existing user
     const user = await User.findOne({ email });

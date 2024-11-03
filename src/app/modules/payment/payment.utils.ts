@@ -10,7 +10,7 @@ export const initialPayment = async (paymentData: any) => {
     tran_id: paymentData.transactionId,
     success_url: `https://recipe-sharing-server-olive.vercel.app/api/payConfirm?transactionId=${paymentData.transactionId}&status=success`,
     fail_url: `https://recipe-sharing-server-olive.vercel.app/api/payConfirm?status=failed`,
-    cancel_url: `http://localhost:3000/feed`,
+    cancel_url: `https://recipe-sharing-client-mu.vercel.app/feed`,
     amount: paymentData.price,
     currency: 'BDT',
     desc: 'Merchant Registration order',
