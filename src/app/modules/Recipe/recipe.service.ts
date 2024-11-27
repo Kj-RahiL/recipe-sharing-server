@@ -32,7 +32,7 @@ const getAllRecipeFromDB = async (query: Record<string, unknown>) => {
   const filterQuery = searchQuery.find(queryObj);
 
   // Sorting
-  let sortBy = '-createdAt'; // Default to latest
+  let sortBy: any = { upVotes: -1 }// Default to latest
   if (query?.sort === 'rating') {
     sortBy = '-rating';
   } else if (query?.sort === 'easy') {
@@ -152,11 +152,73 @@ const downVoteRecipeIntoDB = async (userId: string, recipeId: string) => {
     }
 
     // Create a new comment
-    recipe.comment.push({ user:user.id, comment, date: new Date() });
+    recipe.comment.push({_id: new Types.ObjectId(), user:user.id, comment, date: new Date() });
     await recipe.save();
 
   return recipe
 };
+
+const editCommentOnRecipeInDb = async (user: JwtPayload, recipeId: string, commentId: string, newCommentText: string) => {
+  const recipe = await Recipe.findById(recipeId);
+
+  if (!recipe) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Recipe not found');
+  }
+
+  const comment = recipe.comment.find((c) => c._id.equals(commentId));
+
+  if (!comment) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+  }
+
+  // Check if the user is the author of the comment
+  if (comment.user.toString() !== user.id &&  user.role !== 'admin') {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Not authorized to edit this comment');
+  }
+
+  // Update the comment text
+  comment.comment = newCommentText;
+  comment.date = new Date(); // Update the date to reflect the edit time
+
+  await recipe.save();
+
+  return recipe;
+};
+
+const deleteCommentOnRecipeInDb = async (
+  user: JwtPayload,
+  recipeId: string,
+  commentId: string
+) => {
+  console.log('Starting delete process for:', { user, recipeId, commentId });
+
+  const recipe = await Recipe.findById(recipeId);
+  if (!recipe) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Recipe not found');
+  }
+
+  // Find the comment index in the recipe's comment array
+  const commentIndex = recipe.comment.findIndex((c) => c._id.toString() === commentId);
+  if (commentIndex === -1) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+  }
+
+  // Check if the user is the author of the comment or if the user is an admin
+  const comment = recipe.comment[commentIndex];
+  if (!comment.user.equals(user.id) && user.role !== 'admin') {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Not authorized to delete this comment');
+  }
+
+  // Remove the comment from the recipe's comment array
+  recipe.comment.splice(commentIndex, 1);
+
+  await recipe.save();
+
+  return recipe;
+};
+
+
+
 
  const rateRecipeIntoDB = async (user: JwtPayload, recipeId: string, rating: number) => {
     const recipe = await Recipe.findById(recipeId);
@@ -190,5 +252,7 @@ export const RecipeServices = {
   upVoteRecipeIntoDB,
   downVoteRecipeIntoDB,
   commentOnRecipeIntoDb,
+  editCommentOnRecipeInDb,
+  deleteCommentOnRecipeInDb,
   rateRecipeIntoDB
 };

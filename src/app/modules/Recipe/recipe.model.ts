@@ -28,6 +28,7 @@ const ratingSchema = new Schema<TRating>({
 
 // Comment schema
 const commentSchema = new Schema<TComment>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   comment: { type: String, required: true },
   date: { type: Date, default: Date.now },

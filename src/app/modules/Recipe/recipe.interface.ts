@@ -18,6 +18,7 @@ export type TRating = {
 };
 
 export type TComment = {
+  _id: Types.ObjectId;
   user: Types.ObjectId;
   comment: string;
   date: Date;

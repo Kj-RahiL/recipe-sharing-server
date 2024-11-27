@@ -96,6 +96,31 @@ const deleteRecipe = catchAsync(async (req, res) => {
       data: result,
     });
   });
+  const editCommentRecipe = catchAsync(async (req, res) => {
+    const { recipeId, commentId } = req.params;
+    const { comment } = req.body;
+    const user = req.user
+    console.log(user)
+    const result = await RecipeServices.editCommentOnRecipeInDb(user, recipeId,commentId, comment);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Successfully Comment on Recipe',
+      data: result,
+    });
+  });
+  const DeleteCommentRecipe = catchAsync(async (req, res) => {
+    const { recipeId, commentId } = req.params;
+    const user = req.user
+  
+    const result = await RecipeServices.deleteCommentOnRecipeInDb(user, recipeId, commentId);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Delete Comment on Recipe',
+      data: result,
+    });
+  });
   
   const rateRecipe = catchAsync(async (req, res) => {
     const {recipeId} = req.params
@@ -120,5 +145,7 @@ export const RecipeControllers = {
   upVote,
   downVote,
   commentRecipe,
+  editCommentRecipe,
+  DeleteCommentRecipe,
   rateRecipe
 };

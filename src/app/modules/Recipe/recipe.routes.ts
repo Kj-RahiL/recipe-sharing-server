@@ -34,6 +34,8 @@ router.post('/upvote',Auth(USER_Role.admin, USER_Role.user), RecipeControllers.u
 router.post('/downVote',Auth(USER_Role.admin, USER_Role.user), RecipeControllers.downVote);
 
 router.post('/comment/:recipeId', Auth(USER_Role.admin, USER_Role.user),RecipeControllers.commentRecipe);
+router.put('/comment/:recipeId/:commentId', Auth(USER_Role.admin, USER_Role.user),RecipeControllers.editCommentRecipe);
+router.delete('/comment/:recipeId/:commentId', Auth(USER_Role.admin, USER_Role.user),RecipeControllers.DeleteCommentRecipe);
 router.post('/rate/:recipeId',Auth(USER_Role.admin, USER_Role.user), RecipeControllers.rateRecipe);
 
 export const RecipeRoutes = router;
