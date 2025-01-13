@@ -4,8 +4,8 @@
   "description": "This is a Recipe Sharing Community Web App for backend side.",
   "main": "index.js",
   "scripts": {
-    "start:prod": "node ./dist/server.js",
-    "start:dev": "ts-node-dev --respawn --transpile-only src/server.ts ",
+    "prod": "node ./dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts ",
     "build": "tsc && npm run copy-html",
     "copy-html": "xcopy src\\app\\views dist\\app\\views /E /I /Y",
     "lint:fix": "npx eslint src --fix",
@@ -42,6 +42,7 @@
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.16",
+    "socket.io": "^4.8.1",
     "ts-node-dev": "^2.0.0",
     "zod": "^3.23.8"
   }
