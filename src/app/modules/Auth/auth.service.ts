@@ -23,7 +23,7 @@ const signupFromDB = async (payload: TUser) => {
 };
 
 const loginIntoDB = async (payload: TLoginUser) => {
-  const user = await User.findOne({ email: payload.email }).select('+password');
+  const user = await User.findOne({ email: payload.email }).select('+password')
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }

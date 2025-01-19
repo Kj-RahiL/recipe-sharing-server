@@ -18,11 +18,15 @@ const createAdminIntoDB = async (payload: TUser) => {
   return admin;
 };
 const getAllUser = async () => {
-  const result = await User.find({ role: 'user' });
+  const result = await User.find({ role: 'user' })
+    .populate('followers', 'name email image phone')
+    .populate('following', 'name email image phone');
   return result;
 };
 const getUserFromDB = async (id: string) => {
-  const user = await User.findById(id);
+  const user = await User.findById(id)
+    .populate('followers', 'name email image phone')
+    .populate('following', 'name email image phone');
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User Not found.');
   }
@@ -112,7 +116,7 @@ const unFollowUserIntoDB = async (userId: string, followId: string) => {
 const updateUserIntoDB = async (id: string, payload: TUser) => {
   const isUser = await User.findById(id);
 
-  console.log(isUser)
+  console.log(isUser);
 
   if (!isUser) {
     throw new AppError(httpStatus.NOT_FOUND, 'user not found');
@@ -127,7 +131,11 @@ const deleteUserIntoDB = async (id: string) => {
   if (!isUser) {
     throw new AppError(httpStatus.NOT_FOUND, 'user not found');
   }
-  const user = await User.findByIdAndUpdate(id, {isDeleted: true}, {new:true} );
+  const user = await User.findByIdAndUpdate(
+    id,
+    { isDeleted: true },
+    { new: true },
+  );
   return user;
 };
 
@@ -137,5 +145,6 @@ export const UserServices = {
   getAllUser,
   followUserIntoDB,
   unFollowUserIntoDB,
-  updateUserIntoDB, deleteUserIntoDB
+  updateUserIntoDB,
+  deleteUserIntoDB,
 };
